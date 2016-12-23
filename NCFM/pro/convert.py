@@ -8,6 +8,7 @@ import json
 import glob
 import os
 import urllib2
+from PIL import Image
 
 LABELS_DIR = '../input/json/'
 # The origin train dataset
@@ -78,8 +79,18 @@ def process_labels(label_file):
             y_down = min(img_height - 1, p_middle[1] + offset)
             x_left, x_right, y_up, y_down = int(x_left), int(x_right), int(y_up), int(y_down)
             img = img[y_up:y_down+1, x_left:x_right+1, :]
+            
+            # resize image to 224 * 224
+            img = resize_img(img, 224, 224)
             cv2.imwrite(OUTPUT_DIR + class_name.upper() + '/' + img_data['filename'], img)
     print("Finish to process %s!" % file_name)
+
+def resize_img(img, width, height, mode=Image.ANTIALIAS):
+    im = Image.fromarray(img)
+    new_im = im.resize((width, height), mode)
+
+    new_im.load()
+    return np.asarray(new_im, dtype="float32")
 
 if __name__ == '__main__':
     print("Start to convert ......")
